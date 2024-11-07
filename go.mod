@@ -1,4 +1,4 @@
-module ollamaUnloader
+module github.com/ozguncagri/ollamaUnloader
 
 go 1.23.2
 
