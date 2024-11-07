@@ -1,0 +1,80 @@
+version: '3'
+
+silent: true
+
+vars:
+  PROJECT_NAME: "ollamaUnloader"
+
+tasks:
+  dev:run:
+    dotenv:
+      - "default.env"
+    cmds:
+      - go run cmd/{{.PROJECT_NAME}}/main.go
+
+  dev:build:
+    cmds:
+      - go build -trimpath -ldflags "-s -w" -o bin/{{.PROJECT_NAME}}{{if eq OS "windows"}}.exe{{end}} cmd/{{.PROJECT_NAME}}/main.go
+
+  dev:build:linux:
+    env:
+      GOOS: "linux"
+      GOARCH: "amd64"
+    cmds:
+      - go build -trimpath -ldflags "-s -w" -o bin/{{.PROJECT_NAME}} cmd/{{.PROJECT_NAME}}/main.go
+
+  dev:build:macos:
+    env:
+      GOOS: "darwin"
+      GOARCH: "amd64"
+    cmds:
+      - go build -trimpath -ldflags "-s -w" -o bin/{{.PROJECT_NAME}} cmd/{{.PROJECT_NAME}}/main.go
+
+  dev:build:windows:
+    env:
+      GOOS: "windows"
+      GOARCH: "amd64"
+    cmds:
+      - go build -trimpath -ldflags "-s -w" -o bin/{{.PROJECT_NAME}}.exe cmd/{{.PROJECT_NAME}}/main.go
+
+  dev:test:
+    cmds:
+      - go test -v -race -buildvcs ./...
+
+  dev:test:cover:
+    cmds:
+      - go test -v -race -buildvcs -coverprofile=./coverage.out ./...
+      - go tool cover -html=./coverage.out -o=./coverage.html
+
+  qa:analyze-binary-web:
+    cmds:
+      - gsa --web ./bin/{{.PROJECT_NAME}}
+
+  qa:analyze-binary-tui:
+    cmds:
+      - gsa --tui ./bin/{{.PROJECT_NAME}}
+
+  qa:tidy:
+    cmds:
+      - go fmt ./...
+      - go mod tidy -v
+
+  qa:lint:fix:
+    cmds:
+      - golangci-lint run --fix
+
+  qa:audit:
+    cmds:
+      - go mod verify
+      - go vet ./...
+      - staticcheck -checks=all,-ST1000,-U1000 ./...
+      - govulncheck ./...
+      - go test -race -buildvcs -vet=off ./...
+
+  tools:install:
+    cmds:
+      - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+      - go install honnef.co/go/tools/cmd/staticcheck@latest
+      - go install golang.org/x/vuln/cmd/govulncheck@latest
+      - go install github.com/Zxilly/go-size-analyzer/cmd/gsa@latest
+      - go install github.com/4meepo/tagalign/cmd/tagalign@latest
