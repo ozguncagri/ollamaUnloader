@@ -62,17 +62,17 @@ func rootPersistentPreRun(_ *cobra.Command, _ []string) {
 func rootRun(_ *cobra.Command, _ []string) {
 	ollamaProcess, err := getOllamaProcesses()
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	allModels, err := extractModelsFromProcesses(ollamaProcess)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
 	err = unloadOllamaProcesses(allModels)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 }
 
