@@ -37,6 +37,9 @@ var ViperInstance = viper.New()
 var ollamaHost string = "localhost:11434"
 
 func init() {
+	// hack to allow direct run from windows explorer
+	cobra.MousetrapHelpText = ""
+
 	ViperInstance.AutomaticEnv()
 
 	RootCommand.PersistentFlags().String("ollama-host", "localhost:11434", "Sets host address for ollama server")
